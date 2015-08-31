@@ -1,0 +1,26 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>eu.unicredit.quasar</groupId>
+  <artifactId>hbase-client</artifactId>
+  <version>0.1.0</version>
+  <description>hbase client wrapper for Quasar</description>
+  
+  <dependencies>
+  
+    <dependency>
+      <groupId>co.paralleluniverse</groupId>
+      <artifactId>quasar-core</artifactId>
+      <version>0.7.2</version>
+      <scope>provided</scope>
+    </dependency>
+    
+    <!-- Async Hbase -->
+	<dependency>
+		<groupId>org.hbase</groupId>
+		<artifactId>asynchbase</artifactId>
+		<version>1.6.0</version>
+	</dependency>
+	
+  </dependencies>
+  
+</project>
