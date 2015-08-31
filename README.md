@@ -26,7 +26,7 @@ Add INSERT and UPDATE operations.
 
 ## Code examples
 GET from table by id :
-```
+```java
  final String QUORUM_LIST = "localhost:2181";
  final FiberHBaseClient hbClient = new FiberHBaseClient(QUORUM_LIST);
  ...
