@@ -87,16 +87,18 @@ public class FiberMultiGetRequest {
 		}
 		
 		// join loop
-		ArrayList<KeyValue>[] respArray = new ArrayList[keys.length];
+		ArrayList<ArrayList<KeyValue>> mgetRes = new ArrayList<ArrayList<KeyValue>>();
 		for (int i=0; i<keys.length ;++i) {
+			ArrayList<KeyValue> getRes = null;
 			try {
-				respArray[i] = singleGetArray[i].get();
+				getRes = singleGetArray[i].get();
 			} catch (ExecutionException | InterruptedException e) {
 				e.printStackTrace();
 			}
+			mgetRes.add(getRes);
 		}
 		
-		return (ArrayList<ArrayList<KeyValue>>) Arrays.asList(respArray);
+		return mgetRes;
 	}
 	
 
