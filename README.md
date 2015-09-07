@@ -1,4 +1,4 @@
-# *quasar-hbase-client:0.1.0* 
+# *quasar-hbase-client:0.2.0* 
 
 Hbase client for Quasar library (http://docs.paralleluniverse.co/quasar/).
 It is a wrapper for [asynchbase](https://github.com/OpenTSDB/asynchbase) library
@@ -13,13 +13,13 @@ Now 'hbase-client' library can be use in your Quasar project :
 	<dependency>
 		<groupId>co.paralleluniverse.quasar</groupId>
 		<artifactId>quasar-hbase-client</artifactId>
-		<version>0.1.0</version>
+		<version>0.2.0</version>
 	</dependency>
 ```
 
 
 ## Features 
-Basic query operations (GET and SCAN) are supported.
+Basic query operations (GET. multi-GET and SCAN) are supported.
 
 ## TODO list 
 Add INSERT and UPDATE operations.

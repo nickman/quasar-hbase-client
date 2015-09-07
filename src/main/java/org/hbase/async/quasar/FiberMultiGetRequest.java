@@ -16,7 +16,7 @@ import co.paralleluniverse.fibers.FiberAsync;
 import co.paralleluniverse.fibers.SuspendExecution;
 
 /**
- * Quasar-aware hbase GET operation.
+ * Quasar-aware hbase multi-GET operation.
  * 
  * NB: it's not thread-safe.
  * 
@@ -30,6 +30,9 @@ public class FiberMultiGetRequest {
 	private final String table;
 	private final String[] keys;
 	
+	private String family;
+	private String[] qualifiers;
+	
 	protected FiberMultiGetRequest(HBaseClient hbClient, String table, String... keys) {
 		this.hbClient = hbClient;
 		this.table = table;
@@ -39,28 +42,18 @@ public class FiberMultiGetRequest {
 
 	
 	/**
+	 * Set column filter for results.
 	 * 
 	 * @param family - to specify column filter a family must be specified.
 	 * @param qualifiers - gets only specified column qualifier. Can be null when means all qualifiers.
 	 * @return
 	 */
-	/*public FiberMultiGetRequest setColumnsFilter(String family, String... qualifiers) {
-		
-		if ( family!=null ) {
-			hbGet.family(family);
-			
-			if ( qualifiers!=null ) {
-				byte[][] quals = new byte[qualifiers.length][];
-				int idx = 0;
-				for (String q : qualifiers)
-					quals[idx++] = q.getBytes();
-				
-				hbGet.qualifiers(quals);
-			}
-		}
+	public FiberMultiGetRequest setColumnsFilter(String family, String... qualifiers) {
+		this.family = family;
+		this.qualifiers = qualifiers;
 		
 		return this;
-	}*/
+	}
 	
 	/**
 	 * GET operation.
@@ -81,7 +74,10 @@ public class FiberMultiGetRequest {
 				 */
 				@Override
 				protected ArrayList<KeyValue> run() throws SuspendExecution, InterruptedException {
-					return new FiberGetRequest(hbClient, table, keys[idx]).get();
+					FiberGetRequest getReq = new FiberGetRequest(hbClient, table, keys[idx]);
+					if ( family!=null )
+						getReq.setColumnsFilter(family, qualifiers);
+					return getReq.get();
 				}
 			}.start();
 		}
