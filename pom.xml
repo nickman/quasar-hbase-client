@@ -3,6 +3,7 @@
   <groupId>co.paralleluniverse.quasar</groupId>
   <artifactId>quasar-hbase-client</artifactId>
   <version>0.2.0</version>
+  <name>${project.groupId}:${project.artifactId}</name>
   <description>hbase client wrapper for Quasar</description>
   
   <dependencies>
@@ -22,5 +23,40 @@
 	</dependency>
 	
   </dependencies>
+  
+  
+  <build>
+  	<plugins>
+  	
+  		<!-- package *-sources.jar -->
+	  	<plugin>
+	      <groupId>org.apache.maven.plugins</groupId>
+	      <artifactId>maven-source-plugin</artifactId>
+	      <executions>
+	        <execution>
+	          <id>attach-sources</id>
+	          <goals>
+	            <goal>jar</goal>
+	          </goals>
+	        </execution>
+	      </executions>
+	    </plugin>
+	    
+	    <!-- package *-javadoc.jar -->
+	    <plugin>
+	      <groupId>org.apache.maven.plugins</groupId>
+	      <artifactId>maven-javadoc-plugin</artifactId>
+	      <executions>
+	        <execution>
+	          <id>attach-javadocs</id>
+	          <goals>
+	            <goal>jar</goal>
+	          </goals>
+	        </execution>
+	      </executions>
+	    </plugin>
+  	
+  	</plugins>
+  </build>
   
 </project>
