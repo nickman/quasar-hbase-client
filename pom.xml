@@ -1,37 +1,96 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>co.paralleluniverse.quasar</groupId>
   <artifactId>quasar-hbase-client</artifactId>
   <version>0.2.0</version>
-  <name>${project.groupId}:${project.artifactId}</name>
+  <name>qasynchbase</name>
   <description>hbase client wrapper for Quasar</description>
   
+	<properties>
+  	<!-- Misc -->
+ 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+ 		<compiler-source.version>1.8</compiler-source.version>
+ 		<compiler-target.version>1.8</compiler-target.version>
+ 		<!-- Dependencies -->
+		<slf4j.version>1.7.7</slf4j.version>
+		<logback.version>1.0.13</logback.version>
+		<quasar.version>0.7.6</quasar.version>
+		<asynchbase.version>1.7.2</asynchbase.version>
+		<heliosutils.version>1.0-SNAPSHOT</heliosutils.version>
+
+		<!-- Plugin Versions -->
+		<jar-plugin.version>3.0.2</jar-plugin.version>
+		<source-plugin.version>3.0.1</source-plugin.version>
+		<javadoc-plugin.version>2.10.4</javadoc-plugin.version>
+		<eclipse-plugin.version>2.9</eclipse-plugin.version>
+		<shade.version>2.4.3</shade.version>
+		<compiler.version>3.5.1</compiler.version>
+	</properties>
+
   <dependencies>
   
     <dependency>
       <groupId>co.paralleluniverse</groupId>
       <artifactId>quasar-core</artifactId>
-      <version>0.7.2</version>
-      <scope>provided</scope>
+      <version>${quasar.version}</version>
     </dependency>
     
     <!-- Async Hbase -->
 	<dependency>
 		<groupId>org.hbase</groupId>
 		<artifactId>asynchbase</artifactId>
-		<version>1.6.0</version>
+		<version>${asynchbase.version}</version>
 	</dependency>
+
+	<!-- Heliosutils -->
+	<dependency>
+		<groupId>com.heliosapm.utils</groupId>
+		<artifactId>heliosutils</artifactId>
+		<version>${heliosutils.version}</version>
+	</dependency>
+
 	
   </dependencies>
   
   
   <build>
   	<plugins>
-  	
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-eclipse-plugin</artifactId>
+			<version>${eclipse-plugin.version}</version>
+			<configuration>
+			    <downloadJavadocs>true</downloadJavadocs>
+			    <downloadSources>true</downloadSources>
+			    <classpathContainers>
+			    </classpathContainers>
+			</configuration>
+		</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${compiler.version}</version>
+				<configuration>
+ 					<source>${compiler-source.version}</source>
+ 					<target>${compiler-target.version}</target>
+				</configuration>
+		</plugin>
+       	<plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-jar-plugin</artifactId>
+		  <version>${jar-plugin.version}</version>		
+		  <configuration>
+		  </configuration>
+        </plugin>
+ 	
   		<!-- package *-sources.jar -->
 	  	<plugin>
 	      <groupId>org.apache.maven.plugins</groupId>
 	      <artifactId>maven-source-plugin</artifactId>
+	      <version>${source-plugin.version}</version>
 	      <executions>
 	        <execution>
 	          <id>attach-sources</id>
@@ -46,6 +105,7 @@
 	    <plugin>
 	      <groupId>org.apache.maven.plugins</groupId>
 	      <artifactId>maven-javadoc-plugin</artifactId>
+	      <version>${javadoc-plugin.version}</version>
 	      <executions>
 	        <execution>
 	          <id>attach-javadocs</id>
@@ -56,6 +116,44 @@
 	      </executions>
 	    </plugin>
   	
+  <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-shade-plugin</artifactId>
+    <version>${shade.version}</version>
+        <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>shade</goal>
+              </goals>
+              <configuration>
+                <artifactSet>
+                  <excludes>
+	                  <exclude>META-INF/*.SF</exclude>
+	                  <exclude>META-INF/*.DSA</exclude>
+	                  <exclude>META-INF/*.RSA</exclude>                       
+                  </excludes>
+                  <includes>
+                    
+                  </includes>
+                </artifactSet>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+              <includePluginDependencies>false</includePluginDependencies>
+            <transformers>
+                  <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                  <transformer implementation="org.apache.maven.plugins.shade.resource.ComponentsXmlResourceTransformer"/>
+                  <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
+                    <resource>.SF</resource>
+                    <resource>.DSA</resource>
+                    <resource>.RSA</resource>
+                </transformer>
+                </transformers>
+              </configuration>
+            </execution>
+          </executions>   
+      </plugin>
+
   	</plugins>
   </build>
   
