@@ -1,4 +1,4 @@
-package org.hbase.async.quasar;
+package org.hbase.async;
 
 import org.hbase.async.HBaseClient;
 

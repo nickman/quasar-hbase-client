@@ -1,4 +1,4 @@
-package org.hbase.async.quasar;
+package org.hbase.async;
 
 import java.util.ArrayList;
 import java.util.HashMap;

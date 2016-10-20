@@ -21,8 +21,8 @@
 		<heliosutils.version>1.0-SNAPSHOT</heliosutils.version>
 
 		<!-- Plugin Versions -->
-		<jar-plugin.version>3.0.2</jar-plugin.version>
-		<source-plugin.version>3.0.1</source-plugin.version>
+		<jar-plugin.version>2.4</jar-plugin.version>
+		<source-plugin.version>2.2</source-plugin.version>
 		<javadoc-plugin.version>2.10.4</javadoc-plugin.version>
 		<eclipse-plugin.version>2.9</eclipse-plugin.version>
 		<shade.version>2.4.3</shade.version>
