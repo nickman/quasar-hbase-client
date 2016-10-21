@@ -96,7 +96,9 @@ public abstract class FiberHBaseRPCBuilder<T extends FiberHBaseRPCBuilder<T, R, 
      * @return the async fiber rpc instance
      */
     public V getFiberHBaseRpc() {
-    	if(asyncRpc==null) buildAsyncRpc();    	
+    	if(asyncRpc==null) {
+    		asyncRpc = buildAsyncRpc();    	
+    	}
     	return asyncRpc;
     }
     
@@ -158,8 +160,10 @@ public abstract class FiberHBaseRPCBuilder<T extends FiberHBaseRPCBuilder<T, R, 
     H apply(final H h) {
     	h.setFailfast(true);
     	h.setProbe(probe);
-    	h.setSuspendedProbe(suspended_probe);    	
-    	h.setTimeout(rpcTimeout);
+    	h.setSuspendedProbe(suspended_probe);
+    	if(rpcTimeout > -1) {
+    		h.setTimeout(rpcTimeout);
+    	}
     	h.setTraceRPC(trace_rpc);
     	if(region!=null) {
     		if (table == null) {

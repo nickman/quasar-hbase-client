@@ -26,7 +26,7 @@
 		<javadoc-plugin.version>2.10.4</javadoc-plugin.version>
 		<eclipse-plugin.version>2.9</eclipse-plugin.version>
 		<shade.version>2.4.3</shade.version>
-		<compiler.version>3.5.1</compiler.version>
+		<compiler.version>2.5.1</compiler.version>
 	</properties>
 
   <dependencies>

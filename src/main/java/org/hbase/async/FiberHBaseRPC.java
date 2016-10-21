@@ -18,11 +18,18 @@ under the License.
  */
 package org.hbase.async;
 
+import java.util.concurrent.ExecutionException;
+
 import com.stumbleupon.async.Callback;
 import com.stumbleupon.async.Deferred;
 
+import co.paralleluniverse.common.monitoring.MonitorType;
+import co.paralleluniverse.fibers.Fiber;
 import co.paralleluniverse.fibers.FiberAsync;
+import co.paralleluniverse.fibers.FiberForkJoinScheduler;
 import co.paralleluniverse.fibers.SuspendExecution;
+import co.paralleluniverse.fibers.Suspendable;
+import co.paralleluniverse.strands.SuspendableCallable;
 
 /**
  * <p>Title: FiberHBaseRPC</p>
@@ -37,6 +44,8 @@ import co.paralleluniverse.fibers.SuspendExecution;
 
 public abstract class FiberHBaseRPC<R, T extends HBaseRpc> extends FiberAsync<R, HBaseException> {
 
+	private static final FiberForkJoinScheduler fiberPool = new FiberForkJoinScheduler("FiberHBaseRPC", 12, MonitorType.JMX, true);
+	
 	/** The asynchbase client that will execute the built rpc */
 	protected final HBaseClient hbClient;
 	/** The fiber wrapped hbase rpc */
@@ -86,12 +95,29 @@ public abstract class FiberHBaseRPC<R, T extends HBaseRpc> extends FiberAsync<R,
 	}
 	
 
-
+	@Suspendable
 	public R get() throws SuspendExecution, HBaseException {
+		final FiberAsync<R, HBaseException> fa = this;
+		if(!Fiber.isCurrentFiber()) {
+			try {
+				return fiberPool.newFiber(new SuspendableCallable<R>(){
+					@Suspendable
+					public R run() {							
+						try {
+							return fa.run();
+						} catch (HBaseException | SuspendExecution | InterruptedException e) {
+							throw new RuntimeException("FA Run failed", e);
+						}
+					}				
+				}).start().get();
+			} catch (ExecutionException | InterruptedException e) {
+				throw new RuntimeException("Fiber Exec failed", e);
+			}			
+		}
 		try {
-			return this.run();
-		} catch (InterruptedException iex) {
-			throw new RuntimeException("Fiber was interrupted", iex);
+			return run();
+		} catch (InterruptedException e) {
+			throw new RuntimeException("Exec failed", e);
 		}
 	}
 

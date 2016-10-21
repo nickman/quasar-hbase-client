@@ -20,14 +20,12 @@ package org.hbase.async;
 
 import java.util.ArrayList;
 
-import com.stumbleupon.async.Callback;
 import com.stumbleupon.async.Deferred;
-
-import co.paralleluniverse.fibers.SuspendExecution;
 
 /**
  * <p>Title: FiberGetRequestBuilder</p>
  * <p>Description: RPC builder for a GetRequest</p> 
+ * @author fabio (of https://github.com/fsantagostinobietti/quasar-hbase-client)
  * @author Whitehead (nwhitehead AT heliosdev DOT org)
  * <p><code>org.hbase.async.FiberGetRequestBuilder</code></p>
  */
@@ -153,6 +151,10 @@ public class FiberGetRequestBuilder extends FiberHBaseRPCBuilder<FiberGetRequest
 			super(hbClient, hbGet);
 		}
 		
+		/**
+		 * {@inheritDoc}
+		 * @see org.hbase.async.FiberHBaseRPC#invoke(org.hbase.async.HBaseRpc)
+		 */
 		@Override
 		protected Deferred<ArrayList<KeyValue>> invoke(final GetRequest hbaseRpc) {
 			return hbClient.get(hbaseRpc);
