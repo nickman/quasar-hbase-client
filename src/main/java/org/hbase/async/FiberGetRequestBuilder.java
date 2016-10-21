@@ -18,6 +18,13 @@ under the License.
  */
 package org.hbase.async;
 
+import java.util.ArrayList;
+
+import com.stumbleupon.async.Callback;
+import com.stumbleupon.async.Deferred;
+
+import co.paralleluniverse.fibers.SuspendExecution;
+
 /**
  * <p>Title: FiberGetRequestBuilder</p>
  * <p>Description: RPC builder for a GetRequest</p> 
@@ -25,22 +32,55 @@ package org.hbase.async;
  * <p><code>org.hbase.async.FiberGetRequestBuilder</code></p>
  */
 
-public class FiberGetRequestBuilder extends FiberHBaseRPCBuilder<FiberGetRequestBuilder, GetRequest> {
+public class FiberGetRequestBuilder extends FiberHBaseRPCBuilder<FiberGetRequestBuilder, ArrayList<KeyValue>, GetRequest, FiberGetRequestBuilder.FiberGetRequest> {
 
 	
 	/** The optional row lock for the get request to be built */
 	RowLock rowLock = null;
 	
 	
+	
+	
 	/**
-	 * {@inheritDoc}
-	 * @see org.hbase.async.FiberHBaseRPCBuilder#build()
+	 * Creates a new FiberGetRequestBuilder
+	 * @param hbClient The asynchbase client that will execute the built rpc
 	 */
+	public FiberGetRequestBuilder(final HBaseClient hbClient) {
+		super(hbClient);
+	}
+	
+	
+	
 	@Override
-	public GetRequest build() {
+	public GetRequest buildRpc() {
 		if(table==null) throw new IllegalStateException("The table specifier is null");
 		if(key==null) throw new IllegalStateException("The key specifier is null");
 		final GetRequest g = new GetRequest(table, key);
+		super.apply(g);
+		apply(g);
+		return g;
+	}
+	
+	@Override
+	public FiberGetRequest buildAsyncRpc() {
+		final GetRequest g = buildRpc();
+		final FiberGetRequest f = new FiberGetRequest(hbClient, g);
+		return f;
+	}
+
+	
+	@Override
+	public FiberGetRequestBuilder reset() {
+		rowLock = null;
+		return super.reset();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @see org.hbase.async.FiberHBaseRPCBuilder#apply(org.hbase.async.HBaseRpc)
+	 */
+	@Override
+	GetRequest apply(final GetRequest g) {
 		if(qualifier!=null) {
 			g.qualifier(qualifier);
 		}
@@ -53,8 +93,6 @@ public class FiberGetRequestBuilder extends FiberHBaseRPCBuilder<FiberGetRequest
 		if(rowLock!=null) {
 			g.withRowLock(rowLock);
 		}
-		g.setFailfast(true);
-		
 		return g;
 	}
 	
@@ -94,5 +132,34 @@ public class FiberGetRequestBuilder extends FiberHBaseRPCBuilder<FiberGetRequest
 		this.rowLock = new RowLock(region_name, lockid);
 		return this;
 	}
+	
+	/**
+	 * <p>Title: FiberGetRequest</p>
+	 * <p>Description: A quasar fiber driven wrapper for a {@link GetRequest}</p> 
+	 * @author fabio (of https://github.com/fsantagostinobietti/quasar-hbase-client)
+	 * @author Whitehead (nwhitehead AT heliosdev DOT org)
+	 * <p><code>org.hbase.async.FiberGetRequest</code></p>
+	 */
+	public static class FiberGetRequest extends FiberHBaseRPC<ArrayList<KeyValue>, GetRequest> {
+		/**  */
+		private static final long serialVersionUID = 4856609815364019935L;
+		
+		/**
+		 * Creates a new FiberGetRequest
+		 * @param hbClient The asynchbase client to execute with
+		 * @param hbGet The get request to execute
+		 */
+		FiberGetRequest(final HBaseClient hbClient, final GetRequest hbGet) {
+			super(hbClient, hbGet);
+		}
+		
+		@Override
+		protected Deferred<ArrayList<KeyValue>> invoke(final GetRequest hbaseRpc) {
+			return hbClient.get(hbaseRpc);
+		}
+		
+
+	}
+	
 
 }

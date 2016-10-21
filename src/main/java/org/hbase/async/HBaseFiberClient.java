@@ -31,10 +31,10 @@ public class HBaseFiberClient {
 	}
 	
 
-
-	public FiberGetRequest newGetRequest(String table, String key) {
-		return new FiberGetRequest(hbClient, table, key);
+	public FiberGetRequestBuilder newGetRequest() {
+		return new FiberGetRequestBuilder(hbClient);
 	}
+
 
 	public FiberMultiGetRequest newMGetRequest(String table, String... keys) {
 		return new FiberMultiGetRequest(hbClient, table, keys);

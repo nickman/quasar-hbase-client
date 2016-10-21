@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
+import org.hbase.async.FiberGetRequestBuilder.FiberGetRequest;
 import org.hbase.async.GetRequest;
 import org.hbase.async.HBaseClient;
 import org.hbase.async.HBaseException;
@@ -74,9 +75,9 @@ public class FiberMultiGetRequest {
 				 */
 				@Override
 				protected ArrayList<KeyValue> run() throws SuspendExecution, InterruptedException {
-					FiberGetRequest getReq = new FiberGetRequest(hbClient, table, keys[idx]);
-					if ( family!=null )
-						getReq.setColumnsFilter(family, qualifiers);
+					FiberGetRequest getReq = new FiberGetRequest(hbClient, null);
+//					if ( family!=null )
+//						getReq.setColumnsFilter(family, qualifiers);
 					return getReq.get();
 				}
 			}.start();
