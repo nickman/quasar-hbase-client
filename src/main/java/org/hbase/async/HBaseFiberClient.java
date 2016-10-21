@@ -21,6 +21,17 @@ public class HBaseFiberClient {
 		hbClient = new HBaseClient(quorum);
 	}
 
+	
+	public static void log(Object obj) {
+		System.out.println(obj);
+	}
+	
+	public static void main(String[] args) {
+		log("Test");
+		HBaseFiberClient fc = new HBaseFiberClient("localhost:2181");
+		log("Connected");
+		fc.newGetRequest().table("tsdb-uid").key("host");
+	}
 
 	public HBaseClient getHbClient() {
 		return hbClient;
