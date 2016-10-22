@@ -18,17 +18,16 @@ under the License.
  */
 package org.hbase.async;
 
-import java.util.concurrent.ExecutionException;
-
 import com.stumbleupon.async.Callback;
 import com.stumbleupon.async.Deferred;
 
 import co.paralleluniverse.common.monitoring.MonitorType;
-import co.paralleluniverse.fibers.Fiber;
 import co.paralleluniverse.fibers.FiberAsync;
 import co.paralleluniverse.fibers.FiberForkJoinScheduler;
+import co.paralleluniverse.fibers.FiberUtil;
 import co.paralleluniverse.fibers.SuspendExecution;
 import co.paralleluniverse.fibers.Suspendable;
+import co.paralleluniverse.strands.SettableFuture;
 import co.paralleluniverse.strands.SuspendableCallable;
 
 /**
@@ -95,31 +94,59 @@ public abstract class FiberHBaseRPC<R, T extends HBaseRpc> extends FiberAsync<R,
 	}
 	
 
+	/**
+	 * @return
+	 * @throws SuspendExecution
+	 * @throws HBaseException
+	 */
 	@Suspendable
-	public R get() throws SuspendExecution, HBaseException {
+	public R get() throws HBaseException {
+		
 		final FiberAsync<R, HBaseException> fa = this;
-		if(!Fiber.isCurrentFiber()) {
-			try {
-				return fiberPool.newFiber(new SuspendableCallable<R>(){
-					@Suspendable
-					public R run() {							
-						try {
-							return fa.run();
-						} catch (HBaseException | SuspendExecution | InterruptedException e) {
-							throw new RuntimeException("FA Run failed", e);
-						}
-					}				
-				}).start().get();
-			} catch (ExecutionException | InterruptedException e) {
-				throw new RuntimeException("Fiber Exec failed", e);
-			}			
-		}
+		final SettableFuture<R> fut = new SettableFuture<R>();
 		try {
-			return run();
-		} catch (InterruptedException e) {
-			throw new RuntimeException("Exec failed", e);
+			FiberUtil.runInFiber(fiberPool, new SuspendableCallable<Void>() {
+				@Override
+				public Void run() throws SuspendExecution, InterruptedException {
+					try {
+						final R r = fa.run();
+						fut.set(r);
+					} catch (Throwable t) {
+						fut.setException(t);
+					}
+					return null;
+				}
+			});
+			return fut.get();
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
 		}
 	}
+	
+//	public R get() throws SuspendExecution, HBaseException {
+//		final FiberAsync<R, HBaseException> fa = this;
+//		if(!Fiber.isCurrentFiber()) {
+//			try {
+//				return fiberPool.newFiber(new SuspendableCallable<R>(){
+//					@Suspendable
+//					public R run() {							
+//						try {
+//							return fa.run();
+//						} catch (HBaseException | SuspendExecution | InterruptedException e) {
+//							throw new RuntimeException("FA Run failed", e);
+//						}
+//					}				
+//				}).start().get();
+//			} catch (ExecutionException | InterruptedException e) {
+//				throw new RuntimeException("Fiber Exec failed", e);
+//			}			
+//		}
+//		try {
+//			return run();
+//		} catch (InterruptedException e) {
+//			throw new RuntimeException("Exec failed", e);
+//		}
+//	}
 
 	/**
 	 * Returns the underlying HBaseRpc
